@@ -1,0 +1,16 @@
+import { local } from 'wix-storage-frontend';
+import StringConstants from 'public/common-strings';
+
+export function isSessionActive() {
+    //console.log("Access-Token from SessionManager ::  ", local.getItem(StringConstants.JWT_TOKEN));
+    return local.getItem(StringConstants.JWT_TOKEN) !== null; 
+}
+
+export function getSessionJWTToken() {
+    return local.getItem(StringConstants.JWT_TOKEN);
+}
+
+export function clearSession() {
+    local.removeItem(StringConstants.JWT_TOKEN);
+    local.removeItem(StringConstants.SESSION_AGENT_INFO);
+}

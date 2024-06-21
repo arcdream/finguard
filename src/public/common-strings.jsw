@@ -1,0 +1,12 @@
+
+
+export default class StringConstants {
+    static MISSING_EMAIL_OR_PASSWORD = 'Email or Password is Missing';
+    static SUCCESS = 'Success';
+    static FAIL = 'Fail';
+    static INVALID_LOGIN_CREDENTIALS = 'Invalid login credentials';
+    static JWT_EXPIRED = "JWT Token has expired";
+    static SUPABASE_USER_ID = "supbase-user-id";
+    static SESSION_AGENT_INFO = 'session-agent-info';
+    static JWT_TOKEN = 'access-token';
+  }

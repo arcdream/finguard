@@ -1,0 +1,5 @@
+export const response = {
+    message: "",
+    timestamo: new Date(),
+    status: "failure"
+  };

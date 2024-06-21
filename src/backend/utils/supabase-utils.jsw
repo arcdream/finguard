@@ -1,0 +1,165 @@
+import { createClient } from '@supabase/supabase-js';
+import wixSecretsBackend  from 'wix-secrets-backend';
+import StringConstants from 'public/common-strings';
+
+  export async function get_supabase_client() {
+    try {
+      const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
+      //console.log("This is apiKey : ", apiKey);
+  
+      const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
+      //console.log("This is apiUrl : ", apiUrl);
+  
+      return createClient(apiUrl, apiKey);
+    } catch (error) {
+      console.error('Error getting Supabase client:', error);
+      throw new Error('Failed to create Supabase client');
+    }
+  }
+
+  export async function getSupabaseApiKeyAndUrl() {
+    try {
+      const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
+      const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
+      return [apiKey, apiUrl];
+    } catch (error) {
+      console.error('Error getting Supabase client:', error);
+      throw new Error('Failed to create Supabase client');
+    }
+  }
+
+  export async function executeSupabasePostRequest(urlEndPoint, httpPostBody, accessJWTToken) {
+
+    const executionResponse = {
+      message: "",
+      timestamo: new Date(),
+      status: "failure"
+    };
+
+    try {
+      const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
+      const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
+      const supabasePostUrl = apiUrl + urlEndPoint;
+      
+      console.log("Amit PayLoad : ", httpPostBody);
+  
+      const postOptions = {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessJWTToken}`, 
+          'Content-Type': 'application/json',
+          'apiKey': apiKey,
+          'Prefer': 'return=representation'    
+        },
+        body: JSON.stringify(httpPostBody)
+      };
+  
+      const response = await fetch(supabasePostUrl, postOptions);
+
+      console.log("My Response amit : ", response);
+  
+      if (response.status === 401) {
+        const errorData = await response.json(); 
+        console.log("Amit error data in supabase-utils :", errorData);
+        executionResponse.message = StringConstants.JWT_EXPIRED;
+        executionResponse.status = StringConstants.FAIL;
+
+        return executionResponse;
+      }
+
+      console.log("supabase-utils - 1");
+  
+      if (!response.ok) {
+        executionResponse.message = response;
+        executionResponse.status = StringConstants.FAIL;
+
+        return executionResponse;
+      }
+
+      console.log("supabase-utils - 2", response);
+  
+      const data = await response.json();
+      console.log("supabase-utils - 2.2", data);
+      executionResponse.message = JSON.stringify(data);
+      executionResponse.status = StringConstants.SUCCESS;
+
+
+      console.log("supabase-utils - 3");
+
+      return executionResponse;
+  
+    } catch (error) {
+      console.error('Error Executing supabase post request:', error);
+      throw new Error('Failed to execute supabase post requestt');
+    }
+  }
+
+
+
+  export async function executeSupabaseGetRequest(urlEndPoint, accessJWTToken) {
+
+    const executionResponse = {
+      message: "",
+      timestamo: new Date(),
+      status: "failure"
+    };
+
+    try {
+      const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
+      const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
+      const supabaseGetUrl = apiUrl + urlEndPoint;
+
+      //const supabaseGetUrl = 'https://nkfrnetfnvbmrogdskyd.supabase.co/rest/v1/agents?supa_user_id=eq.aa55f3b6-3e75-478c-a3c3-3160d740fc4f';
+
+      console.log("Amit final URL to HTTP GET : ", supabaseGetUrl );
+  
+      const getOptions = {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessJWTToken}`, 
+          'Content-Type': 'application/json',
+          'apiKey': apiKey,
+          'Prefer': 'return=representation'    
+        }
+      };
+  
+      const response = await fetch(supabaseGetUrl, getOptions);
+
+  
+      if (response.status === 401) {
+        const errorData = await response.json(); 
+        console.log("Amit error data in supabase-utils :", errorData);
+        executionResponse.message = StringConstants.JWT_EXPIRED;
+        executionResponse.status = StringConstants.FAIL;
+
+        return executionResponse;
+      }
+
+      
+      console.log("supabase-utils - 1", JSON.stringify(response));
+  
+      if (!response.ok) {
+        executionResponse.message = response;
+        executionResponse.status = StringConstants.FAIL;
+
+        return executionResponse;
+      }
+      
+
+      console.log("Http Get Response Before data ");
+      const data = await response.json();
+      console.log("Http Get Response Row data : ", data);
+      executionResponse.message = JSON.stringify(data);
+      executionResponse.status = StringConstants.SUCCESS;
+
+      console.log("Http Get Response : ", executionResponse);
+
+      return executionResponse;
+  
+    } catch (error) {
+      console.error('Error Executing supabase get request:', error);
+      throw new Error('Failed to execute supabase get requestt');
+    }
+  }
+  
+  

@@ -1,0 +1,40 @@
+import { isSessionActive } from 'public/session-manager.jsw';
+
+export function prepareHomeMenuItesm() {
+
+    const isLoggedIn = isSessionActive();
+    //console.log("Amit check LoggedIn : ", isLoggedIn);
+    let accountMenuItems = [
+        {label: 'About Us', link: '/about-us', id: 'about-us-page'}
+    ];
+    
+    if (isLoggedIn) {
+        accountMenuItems.unshift({label: 'Logout', link: '/logout', id: 'logout-page'});
+    } else {
+        accountMenuItems.unshift({label: 'Login', link: '/login-singup', id: 'login-page'});
+    }
+
+    let mainMenuItems = [
+        {label: 'Home', link: '/', selected: true, id: 'item-id-1'},
+        {label: 'Services', link: '/rentals', id: 'rentals-id', menuItems: [
+            {label: 'My Policies', link: '/user-policies', id: 'user-policies-page'},
+            {label: 'Agent Contact History', link: '/agent-connected-history', id: 'agent-connected-history-page'}
+        ]}
+    ];
+
+    if (isLoggedIn == false) {
+        mainMenuItems.push({label: 'Register as Agent', link: '/register-agent', id: 'register-agent-page'});
+    } 
+
+    mainMenuItems.push({label: 'Account', link: '/account', id: 'account-id', menuItems: accountMenuItems});
+
+    return mainMenuItems;
+}
+
+export function prepareUserPoliciesMenuItesm() {
+    return prepareHomeMenuItesm();
+}
+
+export function prepareAgentHistoryMenuItesm() {
+    return prepareHomeMenuItesm();
+}

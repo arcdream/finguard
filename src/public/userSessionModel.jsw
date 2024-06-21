@@ -1,0 +1,7 @@
+
+export const sessionDataModel = {
+    id: "",
+    email: "",
+    phone: "",
+    access_token: "",
+  };
