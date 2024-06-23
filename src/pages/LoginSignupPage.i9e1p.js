@@ -124,6 +124,5 @@ function handleSuccessfulAgentFetch(agentInfoResponse, resolve) {
 *	 @param {$w.MouseEvent} event
 */
 export function signUpButton_click(event) {
-	// This function was added from the Properties & Events panel. To learn more, visit http://wix.to/UcBnC-4
-	// Add your code for this event here: 
+	wixLocation.to("/singup-page");
 }

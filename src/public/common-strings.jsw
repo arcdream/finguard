@@ -9,4 +9,5 @@ export default class StringConstants {
     static SUPABASE_USER_ID = "supbase-user-id";
     static SESSION_AGENT_INFO = 'session-agent-info';
     static JWT_TOKEN = 'access-token';
+    static USER_ALREADY_EXISTS = 'User Already Exists';
   }

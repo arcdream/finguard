@@ -3,7 +3,6 @@ import { isSessionActive } from 'public/session-manager.jsw';
 export function prepareHomeMenuItesm() {
 
     const isLoggedIn = isSessionActive();
-    //console.log("Amit check LoggedIn : ", isLoggedIn);
     let accountMenuItems = [
         {label: 'About Us', link: '/about-us', id: 'about-us-page'}
     ];
@@ -11,7 +10,7 @@ export function prepareHomeMenuItesm() {
     if (isLoggedIn) {
         accountMenuItems.unshift({label: 'Logout', link: '/logout', id: 'logout-page'});
     } else {
-        accountMenuItems.unshift({label: 'Login', link: '/login-singup', id: 'login-page'});
+        accountMenuItems.unshift({label: 'Login/Signup', link: '/login-singup', id: 'login-page'});
     }
 
     let mainMenuItems = [
@@ -36,5 +35,13 @@ export function prepareUserPoliciesMenuItesm() {
 }
 
 export function prepareAgentHistoryMenuItesm() {
+    return prepareHomeMenuItesm();
+}
+
+export function prepareAgentHomeMenuItesm() {
+    return prepareHomeMenuItesm();
+}
+
+export function prepareSignupPageMenuItems() {
     return prepareHomeMenuItesm();
 }

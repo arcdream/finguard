@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import wixSecretsBackend  from 'wix-secrets-backend';
 import StringConstants from 'public/common-strings';
+import { createBackendResponse } from 'public/backend-response';
 
   export async function get_supabase_client() {
     try {
@@ -30,12 +31,6 @@ import StringConstants from 'public/common-strings';
 
   export async function executeSupabasePostRequest(urlEndPoint, httpPostBody, accessJWTToken) {
 
-    const executionResponse = {
-      message: "",
-      timestamo: new Date(),
-      status: "failure"
-    };
-
     try {
       const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
       const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
@@ -61,32 +56,22 @@ import StringConstants from 'public/common-strings';
       if (response.status === 401) {
         const errorData = await response.json(); 
         console.log("Amit error data in supabase-utils :", errorData);
-        executionResponse.message = StringConstants.JWT_EXPIRED;
-        executionResponse.status = StringConstants.FAIL;
-
-        return executionResponse;
+        return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
       }
 
       console.log("supabase-utils - 1");
   
       if (!response.ok) {
-        executionResponse.message = response;
-        executionResponse.status = StringConstants.FAIL;
-
-        return executionResponse;
+        return createBackendResponse(response, StringConstants.FAIL);
       }
 
       console.log("supabase-utils - 2", response);
   
       const data = await response.json();
       console.log("supabase-utils - 2.2", data);
-      executionResponse.message = JSON.stringify(data);
-      executionResponse.status = StringConstants.SUCCESS;
 
 
-      console.log("supabase-utils - 3");
-
-      return executionResponse;
+      return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
   
     } catch (error) {
       console.error('Error Executing supabase post request:', error);
@@ -97,12 +82,6 @@ import StringConstants from 'public/common-strings';
 
 
   export async function executeSupabaseGetRequest(urlEndPoint, accessJWTToken) {
-
-    const executionResponse = {
-      message: "",
-      timestamo: new Date(),
-      status: "failure"
-    };
 
     try {
       const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
@@ -125,36 +104,20 @@ import StringConstants from 'public/common-strings';
   
       const response = await fetch(supabaseGetUrl, getOptions);
 
-  
       if (response.status === 401) {
         const errorData = await response.json(); 
         console.log("Amit error data in supabase-utils :", errorData);
-        executionResponse.message = StringConstants.JWT_EXPIRED;
-        executionResponse.status = StringConstants.FAIL;
 
-        return executionResponse;
+        return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
       }
 
-      
-      console.log("supabase-utils - 1", JSON.stringify(response));
-  
       if (!response.ok) {
-        executionResponse.message = response;
-        executionResponse.status = StringConstants.FAIL;
-
-        return executionResponse;
+        return createBackendResponse(response, StringConstants.FAIL);
       }
       
-
       console.log("Http Get Response Before data ");
       const data = await response.json();
-      console.log("Http Get Response Row data : ", data);
-      executionResponse.message = JSON.stringify(data);
-      executionResponse.status = StringConstants.SUCCESS;
-
-      console.log("Http Get Response : ", executionResponse);
-
-      return executionResponse;
+      return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
   
     } catch (error) {
       console.error('Error Executing supabase get request:', error);

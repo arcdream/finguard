@@ -1,6 +1,5 @@
 import { Permissions, webMethod } from "wix-web-module";
 import { sessionDataModel } from 'public/userSessionModel';
-import wixSecretsBackend  from 'wix-secrets-backend';
 import { get_supabase_client } from 'backend/utils/supabase-utils';
 import StringConstants from 'public/common-strings';
 import response from 'public/backend-response';
@@ -14,7 +13,6 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
     status: "failure"
   };
   
-  console.log("Data at backend : ", userSignUpInput);
   const emailAddressForSignin = userSignUpInput.email_address;
   const passwordForSignin = userSignUpInput.password;
 
@@ -27,21 +25,34 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
 
       const supabase = await get_supabase_client().then(client => { return client; });
 
-      const { user, error } = await supabase.auth.signUp(
+      const { data, error } = await supabase.auth.signUp(
         {
           email: emailAddressForSignin,
           password: passwordForSignin
         }
       );
 
+      console.log("Amit -- sigup response from supabase : ", data);
+      console.log("Amit -- sigup error from supabase : ", error);
+
       if(error) {
         response.message = error.message;
-        response.status = "success";
+        response.status = StringConstants.FAIL;
         console.error('Signup error', error.message);
       } else {
-        response.message = user;
-        console.log("User signed up", user);
-        response.status = StringConstants.SUCCESS;
+
+        const isRoleEmpty = data => data.user?.role === "";
+        console.log("Amit isRoleEmpty --> ", isRoleEmpty );
+        if(isRoleEmpty) {
+          response.message = StringConstants.USER_ALREADY_EXISTS;
+          console.log("User signed up Error ", data);
+          response.status = StringConstants.FAIL;
+
+        } else {
+          response.message = data;
+          console.log("User signed up", data);
+          response.status = StringConstants.SUCCESS;
+        }
       }
 
     } catch(error) {
@@ -53,8 +64,9 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
 
   } else {
 
-    response.message = "Login created";
-    response.status = "success"
+    response.message = "Login Creation not possible";
+    response.message = StringConstants.MISSING_EMAIL_OR_PASSWORD;
+    response.status = StringConstants.FAIL;
 
     return response;
 
@@ -162,14 +174,3 @@ export const user_logout = webMethod(Permissions.Anyone, async () => {
   console.log('User logout process completed.', logoutResponse);
   return logoutResponse;
 });
-
-
-
-
-
-
-
-
-
-
-

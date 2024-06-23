@@ -1,5 +1,19 @@
 export const response = {
     message: "",
-    timestamo: new Date(),
+    timestamp: new Date(),
     status: "failure"
   };
+
+  export function createBackendResponse(responseMessage, status) {
+
+    const newResponse = {
+      ...response, 
+      message: responseMessage,
+      timestamp: new Date(),
+      status: status
+    };
+
+    return newResponse;
+  }
+
+

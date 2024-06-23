@@ -1,7 +1,10 @@
 import {local} from 'wix-storage-frontend';
-import { fetch_user_subscribed_insurance } from 'backend/user_insurance_connector';
+import { fetch_user_subscribed_insurance } from 'backend/user-insurance-connector';
 import wixWindowFrontend from "wix-window-frontend";
 import { prepareUserPoliciesMenuItesm } from 'public/navigation-menu-manager';
+import StringConstants  from 'public/common-strings';
+import { getSessionJWTToken } from 'public/session-manager';
+import wixLocation from 'wix-location';
 
 
 $w.onReady( function() {
@@ -20,7 +23,50 @@ $w.onReady( function() {
 
 
   export async function showInsuranceSubscribedDetails() {
-    const userInsuranceData = await fetch_SubscriberInsuranceDetails();
+
+    try {
+
+      const accessJWTToken =  getSessionJWTToken();
+      const userId = "1";
+
+      if(accessJWTToken == null) {
+        wixLocation.to("/login-singup");
+        return false;
+      }
+
+      const response = await fetch_user_subscribed_insurance( { userId, accessJWTToken });
+
+      console.log("[ UserPolicies ]Amit user policies response received : ", response);
+
+      if(response.status == StringConstants.FAIL) {
+        if(response.message == StringConstants.JWT_EXPIRED) {
+          wixLocation.to("/login-singup");
+        }
+      } else {
+
+          const tableData = response.message.data.map(item => {
+            return {
+                "insurance": item.insurance_provider,          
+                "premium": item.policy_number,
+                "agent" : item.agent_id
+            };
+        });
+        
+        $w('#noIsuranceDisplaySection').collapse();
+        $w('#noIsuranceDisplaySection').hide();
+        $w('#insuranceDetailsTable').rows = tableData;
+
+      }
+
+    } catch(error) {
+      console.log('Error while fetching user insurance details : ', error);
+    }
+
+
+
+/*
+
+    const userInsuranceData = await fetch_user_subscribed_insurance();
 
     if (userInsuranceData.success) {
       const tableData = userInsuranceData.data.map(item => {
@@ -40,6 +86,8 @@ $w.onReady( function() {
     } else {
       console.log("userInsuranceData not available");
     }
+
+    */
 
   }
 

@@ -1,10 +1,14 @@
-import { user_signup } from 'backend/login_signup_connector'
+import { user_signup } from 'backend/login-signup-connector'
+import StringConstants from 'public/common-strings';
+import wixLocation from 'wix-location';
+import { prepareSignupPageMenuItems } from 'public/navigation-menu-manager';
+import { showMessageBox } from 'public/lightbox-utils';
+
 
 $w.onReady(function () {
-
-	$w('#updateUserProfileSection').collapse();
-	$w('#updateUserProfileSection').hide();
-
+	console.log("Signup Page is Loaded");
+    $w('#topNavigationMenu').menuItems = prepareSignupPageMenuItems();
+	
 });
 
 /**
@@ -15,6 +19,8 @@ $w.onReady(function () {
 export function singupUserButton_click(event) {
 
 	console.log("Signup the new user")
+	$w("#signupErrorMsg").collapse();
+	$w("#signupErrorMsg").hide();
 
 	const emailAddress = $w('#emailAddressForSignup').value;
 	const password = $w('#passwordForSignup').value;
@@ -43,41 +49,28 @@ export function singupUserButton_click(event) {
 	.then((response) => {
 		console.log("response from backend singing : ", response);
 
-		$w('#updateUserProfileSection').expand();
-		$w('#updateUserProfileSection').show();
+		if(response.status == StringConstants.FAIL) {
+			console.log("Error in signup with supabase");
+			$w("#signupErrorMsg").expand();
+			$w("#signupErrorMsg").show();
+			$w("#signupErrorMsg").text = response.message;
+
+			if (response.message === StringConstants.USER_ALREADY_EXISTS) {
+				console.log(StringConstants.USER_ALREADY_EXISTS);
+				showMessageBox(StringConstants.USER_ALREADY_EXISTS);
+				wixLocation.to('/login-singup');
+			} 
+
+		} else {
+			console.log("Successfully signup with supabase");
+			wixLocation.to("/login-singup");
+		}
+
 	})
 	.catch((error) => {
-		console.log("error in reading singin response")
+		console.log("error in reading singin response", error)
 	});
 
 }
 
-/**
-*	Adds an event handler that runs when the element is clicked.
-	[Read more](https://www.wix.com/corvid/reference/$w.ClickableMixin.html#onClick)
-*	 @param {$w.MouseEvent} event
-*/
-export function updateUserProfileButton_click(event) {
-	// This function was added from the Properties & Events panel. To learn more, visit http://wix.to/UcBnC-4
-	// Add your code for this event here: 
-}
 
-/**
-*	Adds an event handler that runs when the element is clicked.
-	[Read more](https://www.wix.com/corvid/reference/$w.ClickableMixin.html#onClick)
-*	 @param {$w.MouseEvent} event
-*/
-export function text19_click(event) {
-	// This function was added from the Properties & Events panel. To learn more, visit http://wix.to/UcBnC-4
-	// Add your code for this event here: 
-}
-
-/**
-*	Adds an event handler that runs when the element is clicked.
-	[Read more](https://www.wix.com/corvid/reference/$w.ClickableMixin.html#onClick)
-*	 @param {$w.MouseEvent} event
-*/
-export function skipUpdateUserProfileText_click(event) {
-	// This function was added from the Properties & Events panel. To learn more, visit http://wix.to/UcBnC-4
-	// Add your code for this event here: 
-}
