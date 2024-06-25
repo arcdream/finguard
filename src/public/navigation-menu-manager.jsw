@@ -21,9 +21,11 @@ export function prepareHomeMenuItesm() {
         ]}
     ];
 
-    if (isLoggedIn == false) {
-        mainMenuItems.push({label: 'Register as Agent', link: '/register-agent', id: 'register-agent-page'});
-    } 
+    /*
+        if (isLoggedIn == false) {
+            mainMenuItems.push({label: 'Register as Agent', link: '/register-agent', id: 'register-agent-page'});
+        } 
+    */
 
     mainMenuItems.push({label: 'Account', link: '/account', id: 'account-id', menuItems: accountMenuItems});
 

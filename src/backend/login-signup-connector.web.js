@@ -3,21 +3,18 @@ import { sessionDataModel } from 'public/userSessionModel';
 import { get_supabase_client } from 'backend/utils/supabase-utils';
 import StringConstants from 'public/common-strings';
 import response from 'public/backend-response';
+import { createBackendResponse } from 'public/backend-response';
 
 
 export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput) => {
-
-  const response = {
-    message: "",
-    timestamo: new Date(),
-    status: "failure"
-  };
   
   const emailAddressForSignin = userSignUpInput.email_address;
   const passwordForSignin = userSignUpInput.password;
-
+  const userRoleType = userSignUpInput.userRole;
+  let signupResponse = null;
   console.log("email at back end : ", emailAddressForSignin);
   console.log("password at backend : ", passwordForSignin);
+  console.log("userRoleType at backend : ", userRoleType);
 
   if(emailAddressForSignin && passwordForSignin) {
 
@@ -28,51 +25,41 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
       const { data, error } = await supabase.auth.signUp(
         {
           email: emailAddressForSignin,
-          password: passwordForSignin
+          password: passwordForSignin,
+          options: {
+            data: {
+              userRole: userRoleType
+            },
+            emailRedirectTo: 'https://arcdream.wixstudio.io/finguard/signup-email-confirmation'
+          }
         }
-      );
-
-      console.log("Amit -- sigup response from supabase : ", data);
-      console.log("Amit -- sigup error from supabase : ", error);
+      )
 
       if(error) {
-        response.message = error.message;
-        response.status = StringConstants.FAIL;
+        signupResponse = createBackendResponse(error.message, StringConstants.FAIL);
         console.error('Signup error', error.message);
       } else {
-
-        const isRoleEmpty = data => data.user?.role === "";
-        console.log("Amit isRoleEmpty --> ", isRoleEmpty );
-        if(isRoleEmpty) {
-          response.message = StringConstants.USER_ALREADY_EXISTS;
+        const isRoleEmpty = data.user?.role ?? null
+        if(isRoleEmpty == null) {
           console.log("User signed up Error ", data);
-          response.status = StringConstants.FAIL;
-
+          signupResponse = createBackendResponse(StringConstants.USER_ALREADY_EXISTS, StringConstants.FAIL);
         } else {
-          response.message = data;
           console.log("User signed up", data);
-          response.status = StringConstants.SUCCESS;
+          signupResponse = createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
         }
       }
 
     } catch(error) {
-      response.message = error;
-      response.status = StringConstants.FAIL;
+      signupResponse = createBackendResponse(error, StringConstants.FAIL);
       console.error("Unexpected error: ", error);
     }
 
 
   } else {
-
-    response.message = "Login Creation not possible";
-    response.message = StringConstants.MISSING_EMAIL_OR_PASSWORD;
-    response.status = StringConstants.FAIL;
-
-    return response;
-
+    signupResponse = createBackendResponse(StringConstants.MISSING_EMAIL_OR_PASSWORD, StringConstants.FAIL);
   }
 
-  return response;
+  return signupResponse;
   
 });
 
@@ -95,6 +82,11 @@ export const user_login = webMethod(Permissions.Anyone, async (userLoginInput) =
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email: email_address, password });
       if (error) {
+
+        if(error.message == StringConstants.EMAIL_NOT_CONFIRMED) {
+          
+        }
+
         response.message = error.message;
         response.status = StringConstants.FAIL;
         console.error('Login error ---> ', error.message);

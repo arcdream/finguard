@@ -4,18 +4,16 @@ import wixLocation from 'wix-location';
 import { prepareSignupPageMenuItems } from 'public/navigation-menu-manager';
 import { showMessageBox } from 'public/lightbox-utils';
 
+let userRoleType = null;
 
 $w.onReady(function () {
 	console.log("Signup Page is Loaded");
     $w('#topNavigationMenu').menuItems = prepareSignupPageMenuItems();
-	
+	userRoleType = wixLocation.query.role;
+	console.log("[Signup Page] - user type : ", userRoleType );
 });
 
-/**
-*	Adds an event handler that runs when the element is clicked.
-	[Read more](https://www.wix.com/corvid/reference/$w.ClickableMixin.html#onClick)
-*	 @param {$w.MouseEvent} event
-*/
+
 export function singupUserButton_click(event) {
 
 	console.log("Signup the new user")
@@ -38,10 +36,10 @@ export function singupUserButton_click(event) {
 
 	console.log("All fields are valid, requesting the signup")
 
-
 	let signinData = {
 		email_address: emailAddress,
-		password: password
+		password: password,
+		userRole : userRoleType
 	};
 	console.log("singin data", signinData);
 
@@ -64,6 +62,7 @@ export function singupUserButton_click(event) {
 		} else {
 			console.log("Successfully signup with supabase");
 			wixLocation.to("/login-singup");
+			
 		}
 
 	})
@@ -72,5 +71,6 @@ export function singupUserButton_click(event) {
 	});
 
 }
+
 
 

@@ -21,6 +21,7 @@ export function signinButton_click(event) {
 
   user_login(signinData)
     .then((response) => {
+      console.log("[ LoginSignupPage ] - Signin Response : ", response)
       if (response.status === StringConstants.SUCCESS) {
         handleSuccessfulLogin(response);
       } else {
@@ -54,13 +55,10 @@ function handleSuccessfulLogin(response) {
 }
 
 function handleLoginFailure(response) {
-  if (response.message === StringConstants.INVALID_LOGIN_CREDENTIALS) {
-    console.log("Invalid credentials");
+    console.log("[ LoginSignupPage ] - Error in Login : ", response.message);
     $w('#loginErrorDisplay').show();
-    $w('#loginErrorDisplay').text = 'User or password is invalid';
-  } else {
+    $w('#loginErrorDisplay').text = response.message;
     local.setItem(StringConstants.JWT_TOKEN, null);
-  }
 }
 
 function redirectToHomePage() {
@@ -124,5 +122,14 @@ function handleSuccessfulAgentFetch(agentInfoResponse, resolve) {
 *	 @param {$w.MouseEvent} event
 */
 export function signUpButton_click(event) {
-	wixLocation.to("/singup-page");
+	wixLocation.to("/singup-page?role=" + StringConstants.USER_ROLE_CLIENT);
+}
+
+/**
+*	Adds an event handler that runs when the element is clicked.
+	[Read more](https://www.wix.com/corvid/reference/$w.ClickableMixin.html#onClick)
+*	 @param {$w.MouseEvent} event
+*/
+export function signUpAsAgentButton_click(event) {
+	wixLocation.to("/singup-page?role=" + StringConstants.USER_ROLE_AGENT);
 }

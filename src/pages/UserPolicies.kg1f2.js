@@ -44,6 +44,15 @@ $w.onReady( function() {
         }
       } else {
 
+        let userPolicies = JSON.parse(response.message);
+
+        if (Array.isArray(userPolicies) && userPolicies.length === 0) {
+          console.log("[ UserPolicies ]No Policies is subscribed by User: ");
+          $w('#showInsuranceDetails').collapse();
+          $w('#showInsuranceDetails').hide();
+          
+
+        } else {
           const tableData = response.message.data.map(item => {
             return {
                 "insurance": item.insurance_provider,          
@@ -55,6 +64,7 @@ $w.onReady( function() {
         $w('#noIsuranceDisplaySection').collapse();
         $w('#noIsuranceDisplaySection').hide();
         $w('#insuranceDetailsTable').rows = tableData;
+        }
 
       }
 

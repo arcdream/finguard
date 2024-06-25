@@ -10,4 +10,7 @@ export default class StringConstants {
     static SESSION_AGENT_INFO = 'session-agent-info';
     static JWT_TOKEN = 'access-token';
     static USER_ALREADY_EXISTS = 'User Already Exists';
+    static USER_ROLE_AGENT = 'agent';
+    static USER_ROLE_CLIENT = 'client';
+    static EMAIL_NOT_CONFIRMED = 'Email not confirmed';
   }
