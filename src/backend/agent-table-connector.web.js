@@ -1,15 +1,39 @@
 
 import { Permissions, webMethod } from "wix-web-module";
 import { createClient } from '@supabase/supabase-js';
-import { executeSupabasePostRequest, executeSupabaseGetRequest } from 'backend/utils/supabase-utils';
+import { executeSupabasePostRequest, executeSupabaseGetRequest, executeSupabaseUpsertRequest } from 'backend/utils/supabase-utils';
 
 const supabase = createClient('https://nkfrnetfnvbmrogdskyd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZnJuZXRmbnZibXJvZ2Rza3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQyMDcwNDAsImV4cCI6MjAyOTc4MzA0MH0.RF60ffzuy73mn7o1cYqBPGSzhLKf8-LHcozxFc5bY38')
 
 
-export const registerAgent = webMethod(Permissions.Anyone, async ( { dataToInsert, accessJWTToken }) => {
+
+export const updateInsertAgent = webMethod(Permissions.Anyone, async ( profileDataToInsert, accessJWTToken ) => {
   try {
 
-    console.log("Amit jha ::::", accessJWTToken);
+    console.log(" [ agent-table-connector ] - profileDataToInsert : ", profileDataToInsert);
+    console.log(" [ agent-table-connector ] - accessJWTToken : ", accessJWTToken);
+
+    const agentInforInsetUrl = '/rest/v1/agents';
+
+    executeSupabaseUpsertRequest(agentInforInsetUrl, profileDataToInsert, accessJWTToken)
+    .then((result) => 
+    { 
+      console.log('Upsert successful:', result); 
+      return result;
+    })
+    .catch(error => console.error('Upsert failed:', error));
+
+
+  } catch (error) {
+    console.error('Error inserting data:', error.message);
+    const errorResponse = () => ({ message: error.message, timestamp: new Date(), status: "failure" });
+    return errorResponse;
+  }    
+});
+
+
+export const registerAgent = webMethod(Permissions.Anyone, async ( dataToInsert, accessJWTToken ) => {
+  try {
 
     const agentInforInsetUrl = '/rest/v1/agents'
     return executeSupabasePostRequest(agentInforInsetUrl, dataToInsert, accessJWTToken);
@@ -40,11 +64,7 @@ export const read_agent_self_info = webMethod(Permissions.Anyone, async (agentId
 export const fetchAgentInfoBySupabaseId = webMethod(Permissions.Anyone, async ({ supabaseId, accessJWTToken }) => {
   
   try {
-
-    //https://nkfrnetfnvbmrogdskyd.supabase.co/rest/v1/agents?supa_user_id=eq.aa55f3b6-3e75-478c-a3c3-3160d740fc4f
-
     const agentInforInsetUrl = '/rest/v1/agents?supa_user_id=eq.' + supabaseId;
-
     const agentInfo = await executeSupabaseGetRequest(agentInforInsetUrl, accessJWTToken);
     console.log("Agent Info in agent-table-connector : ", agentInfo);
 

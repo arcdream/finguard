@@ -30,13 +30,22 @@ import { createBackendResponse } from 'public/backend-response';
   }
 
   export async function executeSupabasePostRequest(urlEndPoint, httpPostBody, accessJWTToken) {
+    return executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'return=representation' );
+  }
+
+  export async function executeSupabaseUpsertRequest(urlEndPoint, httpPostBody, accessJWTToken) {
+    executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'resolution=merge-duplicates' );
+  }
+
+  export async function executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, updateMode) {
 
     try {
       const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
       const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
       const supabasePostUrl = apiUrl + urlEndPoint;
       
-      console.log("Amit PayLoad : ", httpPostBody);
+      console.log("[ subpbase-utils ] - httpPostBody : ", httpPostBody);
+      console.log("[ subpbase-utils ] - accessJWTToken : ", accessJWTToken);
   
       const postOptions = {
         method: 'POST',
@@ -44,32 +53,24 @@ import { createBackendResponse } from 'public/backend-response';
           'Authorization': `Bearer ${accessJWTToken}`, 
           'Content-Type': 'application/json',
           'apiKey': apiKey,
-          'Prefer': 'return=representation'    
+          'Prefer': updateMode   
         },
         body: JSON.stringify(httpPostBody)
       };
-  
-      const response = await fetch(supabasePostUrl, postOptions);
 
-      console.log("My Response amit : ", response);
+      const response = await fetch(supabasePostUrl, postOptions);
   
       if (response.status === 401) {
         const errorData = await response.json(); 
         console.log("Amit error data in supabase-utils :", errorData);
         return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
       }
-
-      console.log("supabase-utils - 1");
   
       if (!response.ok) {
         return createBackendResponse(response, StringConstants.FAIL);
       }
-
-      console.log("supabase-utils - 2", response);
   
       const data = await response.json();
-      console.log("supabase-utils - 2.2", data);
-
 
       return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
   
@@ -115,7 +116,6 @@ import { createBackendResponse } from 'public/backend-response';
         return createBackendResponse(response, StringConstants.FAIL);
       }
       
-      console.log("Http Get Response Before data ");
       const data = await response.json();
       return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
   

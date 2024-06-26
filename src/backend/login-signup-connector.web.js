@@ -37,7 +37,7 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
 
       if(error) {
         signupResponse = createBackendResponse(error.message, StringConstants.FAIL);
-        console.error('Signup error', error.message);
+        console.log('Signup error', error);
       } else {
         const isRoleEmpty = data.user?.role ?? null
         if(isRoleEmpty == null) {
@@ -68,55 +68,45 @@ export const user_signup = webMethod(Permissions.Anyone, async (userSignUpInput)
 ************************************************************************************/
 
 export const user_login = webMethod(Permissions.Anyone, async (userLoginInput) => {
-  const response = {
-    message: "",
-    timestamo: new Date(),
-    status: "failure"
-  };
-
+  let loginResponse = null;
   const { email_address, password } = userLoginInput;
   const supabase = await get_supabase_client();
-  console.log("Supabase client initialized.");
+  console.log("[ login-signup-connector ] - Supabase client initialized for Login.");
 
   if (email_address && password) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email: email_address, password });
+
       if (error) {
-
-        if(error.message == StringConstants.EMAIL_NOT_CONFIRMED) {
-          
-        }
-
-        response.message = error.message;
-        response.status = StringConstants.FAIL;
-        console.error('Login error ---> ', error.message);
+        console.log('[ login-signup-connector ] - Login error : ', error);
+        console.log('[ login-signup-connector ] - Login error 123 : ', error.message);
+        loginResponse = createBackendResponse(error.message, StringConstants.FAIL);
       } else {
-        console.log("Supabase Response of signInWithPassword : ", data);
-        response.message = JSON.stringify(createSessionData(data));
-        response.status = StringConstants.SUCCESS;
+        console.log('[ login-signup-connector ] - Loggin Successful with data : ', data);
+        loginResponse =  createBackendResponse(JSON.stringify(createSessionData(data)), StringConstants.SUCCESS);
       }
     } catch (error) {
-      response.message = error;
-      response.status = StringConstants.FAIL;
-      console.error("Unexpected error: ", error);
+      console.log('[ login-signup-connector ] - Unexpected Login error : ', error);
+      loginResponse =  createBackendResponse(error.message, StringConstants.FAIL);
     }
   } else {
-    response.message = StringConstants.MISSING_EMAIL_OR_PASSWORD;
-    response.status = StringConstants.FAIL;
-    response.message = "Email or Password is Missing";
+    console.log('[ login-signup-connector ] - Missing UserId or Password');
+    loginResponse =  createBackendResponse(StringConstants.MISSING_EMAIL_OR_PASSWORD, StringConstants.FAIL);
   }
 
-  return response;
+  return loginResponse;
+
 });
 
 
 export function createSessionData(data) {
   
 	const sessionStore = {
-		id: data.user?.id ?? '',
-		email: data.user?.email ?? '',
-		phone: data.user?.phone ?? '',
-		access_token: data.session?.access_token ?? '',
+      id: data.user?.id ?? '',
+      email: data.user?.email ?? '',
+      phone: data.user?.phone ?? '',
+      access_token: data.session?.access_token ?? '',
+      userRole : data.user?.user_metadata?.userRole ?? ''
 	  };
 
 	  validateSessionStore(sessionStore);

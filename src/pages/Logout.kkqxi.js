@@ -18,7 +18,9 @@ function userLogout() {
     .then(response => {
       console.log('Logout response:', response);
       if(response.status == StringConstants.SUCCESS) {
-        local.removeItem('access-token');
+        local.removeItem(StringConstants.JWT_TOKEN);
+        local.removeItem(StringConstants.SUPABASE_USER_ID);
+        local.removeItem(StringConstants.AGENT_PROFILE_STATUS);
       }
       wixLocation.to("/");
     })

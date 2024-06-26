@@ -14,3 +14,7 @@ export function clearSession() {
     local.removeItem(StringConstants.JWT_TOKEN);
     local.removeItem(StringConstants.SESSION_AGENT_INFO);
 }
+
+export function getUserSupabaseId () {
+    return local.getItem(StringConstants.SUPABASE_USER_ID); 
+}

@@ -13,4 +13,5 @@ export default class StringConstants {
     static USER_ROLE_AGENT = 'agent';
     static USER_ROLE_CLIENT = 'client';
     static EMAIL_NOT_CONFIRMED = 'Email not confirmed';
+    static AGENT_PROFILE_STATUS = "Agent Profile Status"
   }
