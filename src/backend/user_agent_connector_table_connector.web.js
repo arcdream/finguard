@@ -1,6 +1,8 @@
 import { Permissions, webMethod } from "wix-web-module";
 import { createClient } from '@supabase/supabase-js';
 import { executeSupabaseGetRequest } from 'backend/utils/supabase-utils';
+import { createBackendResponse } from 'public/backend-response';
+import StringConstants from 'public/common-strings';
 
 const supabase = createClient('https://nkfrnetfnvbmrogdskyd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZnJuZXRmbnZibXJvZ2Rza3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQyMDcwNDAsImV4cCI6MjAyOTc4MzA0MH0.RF60ffzuy73mn7o1cYqBPGSzhLKf8-LHcozxFc5bY38')
 
@@ -44,8 +46,10 @@ export const fetchUserConnectHistory = webMethod(Permissions.Anyone, async ({ ag
   try {
 
     const userConnectHistoryUrl = '/rest/v1/user_agent_connect?agent_id=eq.' + agentId;
+    const userConnectHistroy = await executeSupabaseGetRequest(userConnectHistoryUrl, accessToken);
+    console.log("[ user-agent-connector-table ] - user connect history : ", userConnectHistroy);
 
-    return executeSupabaseGetRequest(userConnectHistoryUrl, accessToken);
+    return JSON.stringify(createBackendResponse( JSON.stringify(userConnectHistroy), StringConstants.SUCCESS ));
 
   } catch (error) {
     console.error('Error fetching data:', error.message);

@@ -1,33 +1,32 @@
 
 import { Permissions, webMethod } from "wix-web-module";
 import { createClient } from '@supabase/supabase-js';
-import { executeSupabasePostRequest, executeSupabaseGetRequest, executeSupabaseUpsertRequest } from 'backend/utils/supabase-utils';
+import { executeSupabasePostRequest, executeSupabaseGetRequest, executeSupabasePatchRequest } from 'backend/utils/supabase-utils';
+import { createBackendResponse } from 'public/backend-response';
+import StringConstants from 'public/common-strings';
 
 const supabase = createClient('https://nkfrnetfnvbmrogdskyd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZnJuZXRmbnZibXJvZ2Rza3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQyMDcwNDAsImV4cCI6MjAyOTc4MzA0MH0.RF60ffzuy73mn7o1cYqBPGSzhLKf8-LHcozxFc5bY38')
 
 
 
-export const updateInsertAgent = webMethod(Permissions.Anyone, async ( profileDataToInsert, accessJWTToken ) => {
+export const updateAgentInformation = webMethod(Permissions.Anyone, async ( profileDataToInsert, accessJWTToken, agentId ) => {
   try {
 
     console.log(" [ agent-table-connector ] - profileDataToInsert : ", profileDataToInsert);
     console.log(" [ agent-table-connector ] - accessJWTToken : ", accessJWTToken);
 
-    const agentInforInsetUrl = '/rest/v1/agents';
+    const agentInforInsetUrl = '/rest/v1/agents?agent_id=eq.' + agentId ;
 
-    executeSupabaseUpsertRequest(agentInforInsetUrl, profileDataToInsert, accessJWTToken)
-    .then((result) => 
-    { 
-      console.log('Upsert successful:', result); 
-      return result;
-    })
-    .catch(error => console.error('Upsert failed:', error));
+    console.log("[ agent-table-connector ] - Agent Information Update for URL :  ", agentInforInsetUrl );
+
+    const response = await executeSupabasePatchRequest(agentInforInsetUrl, profileDataToInsert, accessJWTToken);
+
+    return createBackendResponse( JSON.stringify(response.message[0]), StringConstants.SUCCESS );
 
 
   } catch (error) {
     console.error('Error inserting data:', error.message);
-    const errorResponse = () => ({ message: error.message, timestamp: new Date(), status: "failure" });
-    return errorResponse;
+    return createBackendResponse( error.message, StringConstants.FAIL);
   }    
 });
 
@@ -36,7 +35,13 @@ export const registerAgent = webMethod(Permissions.Anyone, async ( dataToInsert,
   try {
 
     const agentInforInsetUrl = '/rest/v1/agents'
-    return executeSupabasePostRequest(agentInforInsetUrl, dataToInsert, accessJWTToken);
+    const response = await executeSupabasePostRequest(agentInforInsetUrl, dataToInsert, accessJWTToken);
+    console.log("[ agent-table-connector ] - register agent response : ", response);
+    if( JSON.parse(response.message).length > 0 ) {
+      return createBackendResponse( JSON.parse(response.message)[0] , StringConstants.SUCCESS );
+    } else {
+      return createBackendResponse( null, StringConstants.FAIL );
+    }
 
   } catch (error) {
     console.error('Error inserting data:', error.message);
@@ -68,12 +73,14 @@ export const fetchAgentInfoBySupabaseId = webMethod(Permissions.Anyone, async ({
     const agentInfo = await executeSupabaseGetRequest(agentInforInsetUrl, accessJWTToken);
     console.log("Agent Info in agent-table-connector : ", agentInfo);
 
-    return agentInfo;
-
+    if( agentInfo.message.length > 0 ) {
+      return createBackendResponse( JSON.stringify(agentInfo.message[0]) , StringConstants.SUCCESS );
+    } else {
+      return createBackendResponse( null, StringConstants.FAIL );
+    }
   } catch (error) {
     console.error('Error fetching data:', error.message);
-    const errorResponse = () => ({ message: error.message, timestamp: new Date(), status: "failure" });
-    return errorResponse;
+    return createBackendResponse( null, StringConstants.FAIL );
   } 
   
 });

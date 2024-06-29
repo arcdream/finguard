@@ -14,7 +14,7 @@ $w.onReady(function () {
     .then((agentInfo) => {
       	console.log('[ AgentHome ] - Agent info successfully fetched and stored. :', agentInfo);
 		  handleSuccessfulAgentFetch(agentInfo);
-		  fetchUserAgentConnectionLog(1008, accessToken);
+		  //fetchUserAgentConnectionLog(1008, accessToken); Amit .. take a look
     })
     .catch(error => {
       console.error('[ AgentHome ] - Error handling agent info:', error);
@@ -34,7 +34,6 @@ export async function getBasicAgentInformation(supabaseId, jwtToken) {
 	  fetchAgentInfoBySupabaseId(agentFetchInputs)
 		.then(agentInfoResponse => {
 		  console.log("[ AgentHome ] - Agent info response received:", agentInfoResponse);
-  
 		  if (agentInfoResponse.status === StringConstants.SUCCESS) {
 			const agentInfoArray = JSON.parse(agentInfoResponse.message);
 			resolve(agentInfoArray);
@@ -54,8 +53,8 @@ export async function getBasicAgentInformation(supabaseId, jwtToken) {
 
 
 function handleSuccessfulAgentFetch(agentInfo) {
-	if (agentInfo.length > 0) {
-	  local.setItem(StringConstants.SESSION_AGENT_INFO, JSON.stringify(agentInfo[0]));
+	if (agentInfo) {
+	  local.setItem(StringConstants.SESSION_AGENT_INFO, JSON.stringify(agentInfo));
 	  console.log("Agent info stored successfully:", local.getItem(StringConstants.SESSION_AGENT_INFO));
 	} else {
 		local.removeItem(StringConstants.SESSION_AGENT_INFO);

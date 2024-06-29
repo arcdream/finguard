@@ -29,15 +29,21 @@ import { createBackendResponse } from 'public/backend-response';
     }
   }
 
+  export async function executeSupabasePatchRequest(urlEndPoint, httpPostBody, accessJWTToken) {
+    return executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'return=representation', 'PATCH' );
+  }
+
   export async function executeSupabasePostRequest(urlEndPoint, httpPostBody, accessJWTToken) {
-    return executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'return=representation' );
+    return executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'return=representation', 'POST' );
   }
 
   export async function executeSupabaseUpsertRequest(urlEndPoint, httpPostBody, accessJWTToken) {
-    executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'resolution=merge-duplicates' );
+    executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, 'resolution=merge-duplicates', 'POST' );
   }
 
-  export async function executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, updateMode) {
+  
+
+  export async function executeSupabasePostRequestWithUpdateMode(urlEndPoint, httpPostBody, accessJWTToken, updateMode, restMethod) {
 
     try {
       const apiKey = await wixSecretsBackend.getSecret('supabase_apiKey');
@@ -48,7 +54,7 @@ import { createBackendResponse } from 'public/backend-response';
       console.log("[ subpbase-utils ] - accessJWTToken : ", accessJWTToken);
   
       const postOptions = {
-        method: 'POST',
+        method: restMethod,
         headers: {
           'Authorization': `Bearer ${accessJWTToken}`, 
           'Content-Type': 'application/json',
@@ -59,23 +65,33 @@ import { createBackendResponse } from 'public/backend-response';
       };
 
       const response = await fetch(supabasePostUrl, postOptions);
+
+      console.log("[ supabase-utils ] - Http Post Response : ", response);
   
       if (response.status === 401) {
         const errorData = await response.json(); 
-        console.log("Amit error data in supabase-utils :", errorData);
+        console.log("[ supabase-utils ] - error in post request  :", errorData);
         return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
       }
+
+      console.log("-------------- Amit ------> 0 : ", response);
+      console.log("-------------- Amit ------> 1 : ", response.status);
   
       if (!response.ok) {
-        return createBackendResponse(response, StringConstants.FAIL);
+        console.log("-------------- Amit ------> 1.1 : ", response.status);
+        return createBackendResponse(response.status, StringConstants.FAIL);
       }
+
+
+      console.log("-------------- Amit ------> 2 : ", response.status);
   
       const data = await response.json();
-
-      return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
+      console.log("-------------- Amit ------> 3 : ", data);
+      console.log("[ supabase-utils ] - Post json response : ", data);
+      return createBackendResponse(data, StringConstants.SUCCESS);
   
     } catch (error) {
-      console.error('Error Executing supabase post request:', error);
+      console.log('[ supabase-utils ] - Error Executing supabase post request:', error);
       throw new Error('Failed to execute supabase post requestt');
     }
   }
@@ -117,7 +133,7 @@ import { createBackendResponse } from 'public/backend-response';
       }
       
       const data = await response.json();
-      return createBackendResponse(JSON.stringify(data), StringConstants.SUCCESS);
+      return createBackendResponse(data, StringConstants.SUCCESS);
   
     } catch (error) {
       console.error('Error Executing supabase get request:', error);

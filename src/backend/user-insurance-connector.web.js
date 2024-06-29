@@ -1,6 +1,8 @@
 import { Permissions, webMethod } from "wix-web-module";
 import { createClient } from '@supabase/supabase-js';
 import { executeSupabaseGetRequest } from 'backend/utils/supabase-utils';
+import { createBackendResponse } from 'public/backend-response';
+import StringConstants from 'public/common-strings';
 
 
 const supabase = createClient('https://nkfrnetfnvbmrogdskyd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZnJuZXRmbnZibXJvZ2Rza3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQyMDcwNDAsImV4cCI6MjAyOTc4MzA0MH0.RF60ffzuy73mn7o1cYqBPGSzhLKf8-LHcozxFc5bY38')
@@ -33,7 +35,7 @@ export const fetch_user_subscribed_insurance = webMethod(Permissions.Anyone, asy
     const subscriberPolicies = await executeSupabaseGetRequest(agentInforInsetUrl, accessJWTToken);
     console.log("[ user-insurance-connector ] - supabase response for http get request : ", subscriberPolicies);
 
-    return subscriberPolicies;
+    return createBackendResponse( JSON.stringify( subscriberPolicies ), StringConstants.SUCCESS );
 
   } catch (error) {
     console.error('Error fetching data:', error);

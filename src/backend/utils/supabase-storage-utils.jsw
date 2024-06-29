@@ -1,0 +1,20 @@
+import { createBackendResponse } from 'public/backend-response';
+import StringConstants from 'public/common-strings';
+import { executeSupabasePostRequest } from 'backend/utils/supabase-utils';
+
+export  async function createBucket (bucketName, accessJWTToken) {
+
+  try {
+
+      const storageCreationUrl = '/storage/v1/bucket'
+      const dataToInsert = {
+        bucketName: bucketName
+      };
+      const response = await executeSupabasePostRequest(storageCreationUrl, dataToInsert, accessJWTToken);
+      console.log("[ supabase-storage-utils ] -create ucket response : ", response);
+      return response;
+    } catch (error) {
+      console.error('Error inserting data:', error.message);
+      return createBackendResponse("", StringConstants.FAIL);
+    } 
+  };
