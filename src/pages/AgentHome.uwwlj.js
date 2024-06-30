@@ -12,7 +12,7 @@ $w.onReady(function () {
 
 	getBasicAgentInformation(userId, accessToken)
     .then((agentInfo) => {
-      	console.log('[ AgentHome ] - Agent info successfully fetched and stored. :', agentInfo);
+      	console.log('[ AgentHome ] - Basic agent information fetched from DB. :', agentInfo);
 		  handleSuccessfulAgentFetch(agentInfo);
 		  //fetchUserAgentConnectionLog(1008, accessToken); Amit .. take a look
     })
@@ -54,7 +54,7 @@ export async function getBasicAgentInformation(supabaseId, jwtToken) {
 
 function handleSuccessfulAgentFetch(agentInfo) {
 	if (agentInfo) {
-	  local.setItem(StringConstants.SESSION_AGENT_INFO, JSON.stringify(agentInfo));
+	  local.setItem(StringConstants.SESSION_AGENT_INFO, agentInfo);
 	  console.log("Agent info stored successfully:", local.getItem(StringConstants.SESSION_AGENT_INFO));
 	} else {
 		local.removeItem(StringConstants.SESSION_AGENT_INFO);
@@ -91,7 +91,7 @@ export async function fetchUserAgentConnectionLog(agentId, accessToken) {
 		wixLocation.to("/login-singup");
 	  } else {
 		console.log("This is not an Agent login")
-		local.setItem(StringConstants.SESSION_AGENT_INFO, null);
+		local.removeItem(StringConstants.SESSION_AGENT_INFO);
 	  }
 }
 

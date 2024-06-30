@@ -8,10 +8,10 @@ export  async function createBucket (bucketName, accessJWTToken) {
 
       const storageCreationUrl = '/storage/v1/bucket'
       const dataToInsert = {
-        bucketName: bucketName
+        name: bucketName
       };
       const response = await executeSupabasePostRequest(storageCreationUrl, dataToInsert, accessJWTToken);
-      console.log("[ supabase-storage-utils ] -create ucket response : ", response);
+      console.log("[ supabase-storage-utils ] - create ucket response : ", response);
       return response;
     } catch (error) {
       console.error('Error inserting data:', error.message);

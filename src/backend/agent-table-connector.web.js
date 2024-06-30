@@ -37,8 +37,8 @@ export const registerAgent = webMethod(Permissions.Anyone, async ( dataToInsert,
     const agentInforInsetUrl = '/rest/v1/agents'
     const response = await executeSupabasePostRequest(agentInforInsetUrl, dataToInsert, accessJWTToken);
     console.log("[ agent-table-connector ] - register agent response : ", response);
-    if( JSON.parse(response.message).length > 0 ) {
-      return createBackendResponse( JSON.parse(response.message)[0] , StringConstants.SUCCESS );
+    if( response.message.length > 0 ) {
+      return createBackendResponse( JSON.stringify(response.message[0]) , StringConstants.SUCCESS );
     } else {
       return createBackendResponse( null, StringConstants.FAIL );
     }

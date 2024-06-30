@@ -50,14 +50,14 @@ import { createBackendResponse } from 'public/backend-response';
       const apiUrl = await wixSecretsBackend.getSecret('supabase_apiUrl');
       const supabasePostUrl = apiUrl + urlEndPoint;
       
-      console.log("[ subpbase-utils ] - httpPostBody : ", httpPostBody);
-      console.log("[ subpbase-utils ] - accessJWTToken : ", accessJWTToken);
+      //console.log("[ subpbase-utils ] - httpPostBody : ", httpPostBody);
+      //console.log("[ subpbase-utils ] - accessJWTToken : ", accessJWTToken);
   
       const postOptions = {
         method: restMethod,
         headers: {
           'Authorization': `Bearer ${accessJWTToken}`, 
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
           'apiKey': apiKey,
           'Prefer': updateMode   
         },
@@ -68,25 +68,40 @@ import { createBackendResponse } from 'public/backend-response';
 
       console.log("[ supabase-utils ] - Http Post Response : ", response);
   
-      if (response.status === 401) {
+      //if (response.status === 401) {
+      //  const errorData = await response.json(); 
+      //  console.log("[ supabase-utils ] - error in post request  :", errorData);
+      //  return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
+      //}
+
+      //400 is the generic error, the actual error lies in error data below
+      if (response.status === 400) {
+        let httpFailureResponse;
         const errorData = await response.json(); 
-        console.log("[ supabase-utils ] - error in post request  :", errorData);
-        return createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL);
+        
+        console.log("[ supabase-utils ] - error in post request : ", errorData);
+        switch (errorData.statusCode) {
+          case "403":
+            //console.log("[ supabase-utils ] - JWT Token expired ")
+            httpFailureResponse = createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL)
+            break;
+          case "409":
+            //console.log("[ supabase-utils ] - Dplicate Resource ")
+            httpFailureResponse = createBackendResponse(StringConstants.HTTP_RESOURCE_ALREADY_EXISTS, StringConstants.FAIL)
+            break;
+          default:
+            console.log("[ supabase-utils ] - Unhandled Exception : ", errorData)
+            httpFailureResponse = createBackendResponse(StringConstants.HTTP_UNHANDLED_EXCEPTION, StringConstants.FAIL)
+        }
+
+        return httpFailureResponse;
       }
 
-      console.log("-------------- Amit ------> 0 : ", response);
-      console.log("-------------- Amit ------> 1 : ", response.status);
-  
       if (!response.ok) {
-        console.log("-------------- Amit ------> 1.1 : ", response.status);
         return createBackendResponse(response.status, StringConstants.FAIL);
       }
-
-
-      console.log("-------------- Amit ------> 2 : ", response.status);
   
       const data = await response.json();
-      console.log("-------------- Amit ------> 3 : ", data);
       console.log("[ supabase-utils ] - Post json response : ", data);
       return createBackendResponse(data, StringConstants.SUCCESS);
   

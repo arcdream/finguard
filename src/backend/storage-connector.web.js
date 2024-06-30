@@ -6,8 +6,8 @@ import { createBucket } from 'backend/utils/supabase-storage-utils';
 
 export const createBucketStorage = webMethod(Permissions.Anyone, async ( bucketName, accessJWTToken ) => {
   try {
-    console.log("[ storage-connector ] - bucketName : ", bucketName);
-    console.log("[ storage-connector ] - accessJWTToken : ", accessJWTToken);
+    //console.log("[ storage-connector ] - bucketName : ", bucketName);
+    //console.log("[ storage-connector ] - accessJWTToken : ", accessJWTToken);
     const response = await createBucket(bucketName, accessJWTToken);
     console.log("[ storage-connector ] - storage creation response : ", response);
     return response;

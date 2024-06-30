@@ -28,16 +28,10 @@ $w.onReady( async function () {
         $w('#identityProofSection').show();
     }
 
-    console.log("[ AgentProfileCreator ] - Agent Supabase Id : ", getUserSupabaseId() );
-    console.log("[ AgentProfileCreator ] - Agent Session Info : ", agentSessionInfo);
+    //console.log("[ AgentProfileCreator ] - Agent Supabase Id : ", getUserSupabaseId() );
+    //console.log("[ AgentProfileCreator ] - Agent Session Info : ", agentSessionInfo);
 
     await handleAgentProfileStatus();
-    
-    console.log("Creating bucket test ---=======>>>>> with session ", agentSessionInfo);
-    console.log("--------- aaaa --------> ", JSON.parse(agentSessionInfo).agent_id);
-    console.log("--------- bbbbbbbb -------> ", getSessionJWTToken());
-    createStorage(JSON.parse(agentSessionInfo).agent_id);
-
 });
 
 
@@ -175,9 +169,8 @@ export async function createAgentProfile(supabaseUserId) {
 
   export async function createStorage(agentId) {
     try {
-      console.log("--------dasdasd---> amit --> ", getSessionJWTToken());
       const result = await createBucketStorage('agent-' + agentId, getSessionJWTToken());
-      console.log('[ AgentProfileCreator ] - Bucket Created successfully :', result);
+      console.log('[ AgentProfileCreator ] -Storage Creation Response :', result);
       return true;
     } catch (error) {
       console.error('[ AgentProfileCreator ] - Bucket Creation failed :', error);
@@ -188,7 +181,7 @@ export async function createAgentProfile(supabaseUserId) {
 
   export async function handleAgentProfileStatus() {
 
-    const agentSessionInfo = local.getItem(StringConstants.SESSION_AGENT_INFO);
+    let agentSessionInfo = local.getItem(StringConstants.SESSION_AGENT_INFO);
 
     console.log("[ AgentProfileCreator ] - agentSessionInfo : ", agentSessionInfo);
 
@@ -197,8 +190,9 @@ export async function createAgentProfile(supabaseUserId) {
         const agentProfileCreationResponse = await createAgentProfile( getUserSupabaseId() );
         //Agent is logging first time, so need to create a bucket for createStorageBucket
         if(agentProfileCreationResponse == true) {
-            console.log('[ AgentProfileCreator ] - Agent Profile creation successfull with stored session info - ', local.getItem( StringConstants.SESSION_AGENT_INFO ));
-            createStorage(agentSessionInfo);
+            agentSessionInfo =  local.getItem( StringConstants.SESSION_AGENT_INFO );
+            console.log('[ AgentProfileCreator ] - Agent Profile creation successfull with stored session info - ', agentSessionInfo);
+            createStorage(JSON.parse(agentSessionInfo).agent_id);
         } else {
             console.log('[ AgentProfileCreator ] - Agent Profile Creation Failed');
         }
