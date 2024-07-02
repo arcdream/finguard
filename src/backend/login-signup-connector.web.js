@@ -83,7 +83,7 @@ export const user_login = webMethod(Permissions.Anyone, async (userLoginInput) =
         loginResponse = createBackendResponse(error.message, StringConstants.FAIL);
       } else {
         console.log('[ login-signup-connector ] - Loggin Successful with data : ', data);
-        loginResponse =  createBackendResponse(JSON.stringify(createSessionData(data)), StringConstants.SUCCESS);
+        loginResponse =  createBackendResponse(createSessionData(data), StringConstants.SUCCESS);
       }
     } catch (error) {
       console.log('[ login-signup-connector ] - Unexpected Login error : ', error);

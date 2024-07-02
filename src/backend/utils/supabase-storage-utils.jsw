@@ -11,10 +11,25 @@ export  async function createBucket (bucketName, accessJWTToken) {
         name: bucketName
       };
       const response = await executeSupabasePostRequest(storageCreationUrl, dataToInsert, accessJWTToken);
-      console.log("[ supabase-storage-utils ] - create ucket response : ", response);
-      return response;
+      console.log("[ supabase-storage-utils ] - create bucket response : ", response);
+      return response.message;
     } catch (error) {
       console.error('Error inserting data:', error.message);
-      return createBackendResponse("", StringConstants.FAIL);
+      return error;
     } 
   };
+
+  export  async function createFolder (bucketName, folderPath, accessJWTToken) {
+
+    try {
+
+        const bucketFolderPathUrl = `/storage/v1/object/${bucketName}/${encodeURIComponent(folderPath)}`;
+        console.log("[ supabase-storage-utils ] - Folder creation path : ", bucketFolderPathUrl);
+        const response = await executeSupabasePostRequest(bucketFolderPathUrl, {} , accessJWTToken);
+        console.log("[ supabase-storage-utils ] - create folder in Bucket response : ", response);
+        return response.message;
+      } catch (error) {
+        console.error('Error inserting data:', error.message);
+        return createBackendResponse("", StringConstants.FAIL);
+      } 
+    };

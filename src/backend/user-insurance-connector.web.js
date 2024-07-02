@@ -35,7 +35,7 @@ export const fetch_user_subscribed_insurance = webMethod(Permissions.Anyone, asy
     const subscriberPolicies = await executeSupabaseGetRequest(agentInforInsetUrl, accessJWTToken);
     console.log("[ user-insurance-connector ] - supabase response for http get request : ", subscriberPolicies);
 
-    return createBackendResponse( JSON.stringify( subscriberPolicies ), StringConstants.SUCCESS );
+    return createBackendResponse( subscriberPolicies, StringConstants.SUCCESS );
 
   } catch (error) {
     console.error('Error fetching data:', error);

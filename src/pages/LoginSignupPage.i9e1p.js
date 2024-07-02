@@ -33,7 +33,7 @@ export function signinButton_click(event) {
 }
 
 function handleSuccessfulLogin(response) {
-  const loginResponse = JSON.parse(response.message);
+  const loginResponse = response.message;
   const accessToken = loginResponse.access_token || null;
   const userId = loginResponse.id || null;
 

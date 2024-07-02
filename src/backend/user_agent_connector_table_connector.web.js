@@ -49,7 +49,7 @@ export const fetchUserConnectHistory = webMethod(Permissions.Anyone, async ({ ag
     const userConnectHistroy = await executeSupabaseGetRequest(userConnectHistoryUrl, accessToken);
     console.log("[ user-agent-connector-table ] - user connect history : ", userConnectHistroy);
 
-    return JSON.stringify(createBackendResponse( JSON.stringify(userConnectHistroy), StringConstants.SUCCESS ));
+    return createBackendResponse( userConnectHistroy, StringConstants.SUCCESS );
 
   } catch (error) {
     console.error('Error fetching data:', error.message);

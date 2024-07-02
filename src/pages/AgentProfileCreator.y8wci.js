@@ -3,11 +3,11 @@ import { getSessionJWTToken, getUserSupabaseId } from 'public/session-manager';
 import StringConstants from 'public/common-strings';
 import { local } from 'wix-storage-frontend';
 import wixLocation from 'wix-location';
-import { createBucketStorage } from 'backend/storage-connector';
+import { createBucketStorage, createBucketFolder } from 'backend/storage-connector';
 
 
 const agentSessionInfo = local.getItem( StringConstants.SESSION_AGENT_INFO );
-let agentProfilePage = 0;
+let agentProfilePage = 1;
 
 $w.onReady( async function () {
     console.log("page loading done ...")
@@ -38,8 +38,14 @@ $w.onReady( async function () {
 export function register_click(event) {
     console.log("Saving the data");
     uploadAadharFile()
-    .then(() => console.log("--- Amit File Saved ---"))
-    .catch(() => console.log("--- Amit File Saved Failed ---"));
+    .then(fileUrl =>  
+    { 
+        console.log("--- Amit File Saved ---"); 
+    })
+    .catch(error => 
+    { 
+        console.log("--- Amit File Saved Failed ---"); 
+    });
    
 
 }
@@ -49,7 +55,7 @@ async function uploadAadharFile() {
     try {
         const uploadedFiles = await $w("#uploadAadhar").uploadFiles();
         const uploadFileUrls = uploadedFiles.map(uploadedFile => uploadedFile.fileUrl);
-        console.log("--- amit --- upload file url ::: ", uploadFileUrls);
+        console.log("[ AgentProfileCreator ] - Upload Aadhar File Url : ", uploadFileUrls);
         return uploadFileUrls;
     } catch (uploadError) {
         let errCode = uploadError.errorCode;  
@@ -167,18 +173,6 @@ export async function createAgentProfile(supabaseUserId) {
     }
   }
 
-  export async function createStorage(agentId) {
-    try {
-      const result = await createBucketStorage('agent-' + agentId, getSessionJWTToken());
-      console.log('[ AgentProfileCreator ] -Storage Creation Response :', result);
-      return true;
-    } catch (error) {
-      console.error('[ AgentProfileCreator ] - Bucket Creation failed :', error);
-      return false;
-    }
-  }
-  
-
   export async function handleAgentProfileStatus() {
 
     let agentSessionInfo = local.getItem(StringConstants.SESSION_AGENT_INFO);
@@ -192,7 +186,14 @@ export async function createAgentProfile(supabaseUserId) {
         if(agentProfileCreationResponse == true) {
             agentSessionInfo =  local.getItem( StringConstants.SESSION_AGENT_INFO );
             console.log('[ AgentProfileCreator ] - Agent Profile creation successfull with stored session info - ', agentSessionInfo);
-            createStorage(JSON.parse(agentSessionInfo).agent_id);
+            const agentBucketName = 'agent-' + JSON.parse(agentSessionInfo).agent_id;
+            const storageCreationResponse = await createBucketStorage(agentBucketName, getSessionJWTToken());
+            console.log("[ AgentProfileCreator ] - Storage Creation Response : ", storageCreationResponse);
+            if( storageCreationResponse.status == StringConstants.SUCCESS ) {
+                console.log('[ AgentProfileCreator ] - Agent Folder Creation Request for agent bucket name :', agentBucketName);
+                const bucketFolderCreationResponse = createBucketFolder( agentBucketName, "aadhar",  getSessionJWTToken() );
+                console.log('[ AgentProfileCreator ] - Agent Folder Creation Response : ', bucketFolderCreationResponse);
+            }            
         } else {
             console.log('[ AgentProfileCreator ] - Agent Profile Creation Failed');
         }

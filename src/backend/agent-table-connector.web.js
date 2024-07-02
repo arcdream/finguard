@@ -21,7 +21,7 @@ export const updateAgentInformation = webMethod(Permissions.Anyone, async ( prof
 
     const response = await executeSupabasePatchRequest(agentInforInsetUrl, profileDataToInsert, accessJWTToken);
 
-    return createBackendResponse( JSON.stringify(response.message[0]), StringConstants.SUCCESS );
+    return createBackendResponse( response.message[0], StringConstants.SUCCESS );
 
 
   } catch (error) {
@@ -74,7 +74,7 @@ export const fetchAgentInfoBySupabaseId = webMethod(Permissions.Anyone, async ({
     console.log("Agent Info in agent-table-connector : ", agentInfo);
 
     if( agentInfo.message.length > 0 ) {
-      return createBackendResponse( JSON.stringify(agentInfo.message[0]) , StringConstants.SUCCESS );
+      return createBackendResponse( agentInfo.message[0] , StringConstants.SUCCESS );
     } else {
       return createBackendResponse( null, StringConstants.FAIL );
     }
