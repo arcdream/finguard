@@ -52,6 +52,7 @@ import { createBackendResponse } from 'public/backend-response';
       
       //console.log("[ subpbase-utils ] - httpPostBody : ", httpPostBody);
       //console.log("[ subpbase-utils ] - accessJWTToken : ", accessJWTToken);
+      console.log("[ subpbase-utils ] - url : ", supabasePostUrl);
   
       const postOptions = {
         method: restMethod,
@@ -66,7 +67,7 @@ import { createBackendResponse } from 'public/backend-response';
 
       const response = await fetch(supabasePostUrl, postOptions);
 
-      console.log("[ supabase-utils ] - Http Post Response : ", response);
+      console.log("[ supabase-utils ] - Http Post Response Status: ", response.ok);
   
       //if (response.status === 401) {
       //  const errorData = await response.json(); 
@@ -83,7 +84,7 @@ import { createBackendResponse } from 'public/backend-response';
         switch (errorData.statusCode) {
           case "403":
             //console.log("[ supabase-utils ] - JWT Token expired ")
-            httpFailureResponse = createBackendResponse(StringConstants.JWT_EXPIRED, StringConstants.FAIL)
+            httpFailureResponse = createBackendResponse(errorData, StringConstants.FAIL)
             break;
           case "409":
             //console.log("[ supabase-utils ] - Dplicate Resource ")

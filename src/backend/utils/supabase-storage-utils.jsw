@@ -33,3 +33,27 @@ export  async function createBucket (bucketName, accessJWTToken) {
         return createBackendResponse("", StringConstants.FAIL);
       } 
     };
+
+    export  async function uploadFile (storagePath, uploadFilePath, fileName, accessJWTToken) {
+
+      try {
+          const bucketFolderPathUrl = `/storage/v1/object/${storagePath}/${fileName}`;
+          console.log("[ supabase-storage-utils ] - uploadFile storagePath path : ", storagePath);
+          console.log("[ supabase-storage-utils ] - uploadFile uploadFilePath : ", uploadFilePath);
+          console.log("[ supabase-storage-utils ] - uploadFile fileName : ", fileName);
+          console.log("[ supabase-storage-utils ] - uploadFile accessJWTToken : ", accessJWTToken);
+
+          const formData = new FormData();
+          formData.append('file', uploadFilePath);
+
+          const response = await executeSupabasePostRequest(bucketFolderPathUrl, formData , accessJWTToken);
+          console.log("[ supabase-storage-utils ] - create folder in Bucket response : ", response);
+          return response.message;
+        } catch (error) {
+          console.error('Error inserting data:', error.message);
+          return createBackendResponse("", StringConstants.FAIL);
+        } 
+      };
+
+
+

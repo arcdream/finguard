@@ -3,7 +3,7 @@ import { getSessionJWTToken, getUserSupabaseId } from 'public/session-manager';
 import StringConstants from 'public/common-strings';
 import { local } from 'wix-storage-frontend';
 import wixLocation from 'wix-location';
-import { createBucketStorage, createBucketFolder } from 'backend/storage-connector';
+import { createBucketStorage, createBucketFolder, uploadedFileToStorage } from 'backend/storage-connector';
 
 
 const agentSessionInfo = local.getItem( StringConstants.SESSION_AGENT_INFO );
@@ -30,7 +30,6 @@ $w.onReady( async function () {
 
     //console.log("[ AgentProfileCreator ] - Agent Supabase Id : ", getUserSupabaseId() );
     //console.log("[ AgentProfileCreator ] - Agent Session Info : ", agentSessionInfo);
-
     await handleAgentProfileStatus();
 });
 
@@ -40,6 +39,11 @@ export function register_click(event) {
     uploadAadharFile()
     .then(fileUrl =>  
     { 
+
+        uploadedFileToStorage('agent-1138/aadhar', fileUrl, 'aadhar.pdf', getSessionJWTToken() ) 
+        .then(respoonse => {console.log("Amit ----> response : ", respoonse)})
+        .catch(error => {console.log("Amit ----> error : ", error)})
+
         console.log("--- Amit File Saved ---"); 
     })
     .catch(error => 
@@ -187,6 +191,7 @@ export async function createAgentProfile(supabaseUserId) {
             agentSessionInfo =  local.getItem( StringConstants.SESSION_AGENT_INFO );
             console.log('[ AgentProfileCreator ] - Agent Profile creation successfull with stored session info - ', agentSessionInfo);
             const agentBucketName = 'agent-' + JSON.parse(agentSessionInfo).agent_id;
+            console.log("[ AgentProfileCreator ] - json token used for creating bucket : ", getSessionJWTToken() );
             const storageCreationResponse = await createBucketStorage(agentBucketName, getSessionJWTToken());
             console.log("[ AgentProfileCreator ] - Storage Creation Response : ", storageCreationResponse);
             if( storageCreationResponse.status == StringConstants.SUCCESS ) {

@@ -34,8 +34,9 @@ export async function getBasicAgentInformation(supabaseId, jwtToken) {
 	  fetchAgentInfoBySupabaseId(agentFetchInputs)
 		.then(agentInfoResponse => {
 		  console.log("[ AgentHome ] - Agent info response received:", agentInfoResponse);
+		  console.log("[ AgentHome ] - Agent info response received - 1 :", agentInfoResponse.status);
 		  if (agentInfoResponse.status === StringConstants.SUCCESS) {
-			const agentInfoArray = JSON.parse(agentInfoResponse.message);
+			const agentInfoArray = agentInfoResponse.message;
 			resolve(agentInfoArray);
 		  } else if (agentInfoResponse.message === StringConstants.JWT_EXPIRED) {
 			wixLocation.to("/login-signup");
